@@ -8,6 +8,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from fake_useragent import UserAgent
 from typing import List, Dict, Optional
+import random
+import json
+import os
 
 
 class AutoTraderScraper:
@@ -190,3 +193,67 @@ class AutoTraderScraper:
 
         print(f"Found {len(articles)} new articles on page {page_number}")
         return articles
+
+    def scrape_all_reviews(self, max_pages=None):
+        """Scrape all review pages up to max_pages"""
+        reviews = []
+        page = 1
+        no_new_content_count = 0
+
+        while True:
+            if max_pages and page > max_pages:
+                print(f"Reached maximum page limit: {max_pages}")
+                break
+
+            print(f"\nScraping page {page}...")
+            page_reviews = self.scrape_reviews_page(page)
+
+            if not page_reviews:
+                no_new_content_count += 1
+                print(f"Pages without new content: {no_new_content_count}")
+                if no_new_content_count >= 3:
+                    print("Found 3 consecutive pages without new content, stopping")
+                    break
+            else:
+                no_new_content_count = 0
+                reviews.extend(page_reviews)
+
+            delay = random.uniform(5, 7)
+            print(f"Waiting {delay:.2f} seconds before next page...")
+            time.sleep(delay)
+
+            page += 1
+
+        print(f"\nFinished scraping. Total articles collected: {len(reviews)}")
+        return reviews
+
+    def save_to_json(self, articles: List[Dict]):
+        """Save scraped data to JSON files in organized directory structure."""
+        base_dir = "articles/raw"
+        os.makedirs(os.path.join(base_dir, self.save_directory), exist_ok=True)
+
+        for article in articles:
+            try:
+                url_parts = article["url"].rstrip("/").split("/")
+                filename = f"{url_parts[-1]}.json"
+                file_path = os.path.join(base_dir, self.save_directory, filename)
+
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(article, f, ensure_ascii=False, indent=2)
+
+                print(f"Saved: {file_path}")
+
+            except Exception as e:
+                print(f"Error saving article: {e}")
+
+
+if __name__ == "__main__":
+    # For expert reviews
+    expert_scraper = AutoTraderScraper(category="expert")
+    expert_reviews = expert_scraper.scrape_all_reviews()
+    expert_scraper.save_to_json(expert_reviews)
+
+    # For long-term reviews
+    longterm_scraper = AutoTraderScraper(category="longterm")
+    longterm_reviews = longterm_scraper.scrape_all_reviews()
+    longterm_scraper.save_to_json(longterm_reviews)
