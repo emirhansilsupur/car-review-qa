@@ -97,3 +97,59 @@ class AutoTraderScraper:
             content = section_divs[0].get_text(strip=True)
             return {"content": content}
         return {}
+
+    def get_article_content(self, url: str) -> Dict:
+        """Fetch and parse article content."""
+
+        headers = {"User-Agent": self.ua.random}
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        content = response.text
+
+        soup = BeautifulSoup(content, "html.parser")
+        article = soup.find("article")
+        if not article:
+            return {}
+
+        title = soup.find(["h1", "h2"], class_=["article-title", "at__sc-1n64n0d-2"])
+        title_text = title.text.strip() if title else None
+
+        # Extract published date
+        published_date = None
+        date_container = article.find("div", class_="at__sc-ug5l9f-5")
+        if date_container:
+            date_element = date_container.find("p", class_="at__sc-1n64n0d-11")
+            if date_element:
+                date_text = date_element.text.strip()
+                if "Published on" in date_text or "Last updated on" in date_text:
+                    published_date = (
+                        date_text.replace("Published on", "")
+                        .replace("Last updated on", "")
+                        .split("|")[0]
+                        .strip()
+                    )
+
+        # Parse sections based on category
+        sections = []
+        if self.category == "expert":
+            article_sections = article.find_all(
+                ["div", "section"], class_=["eGyxSU", "at__sc-21l6gh-2"]
+            )
+            for section in article_sections:
+                section_data = self.parse_expert_section(section)
+                if section_data:
+                    sections.append(section_data)
+        else:
+            article_sections = article.find_all("section", class_="at__sc-21l6gh-2")
+            for section in article_sections:
+                section_data = self.parse_longterm_section(section)
+                if section_data:
+                    sections.append(section_data)
+
+        return {
+            "title": title_text,
+            "url": url,
+            "category": self.category_name,
+            "published_date": published_date,
+            "sections": sections,
+        }
