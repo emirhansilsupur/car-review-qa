@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from fake_useragent import UserAgent
-from typing import Dict, Optional
+from typing import List, Dict, Optional
 
 
 class AutoTraderScraper:
@@ -153,3 +153,40 @@ class AutoTraderScraper:
             "published_date": published_date,
             "sections": sections,
         }
+
+    def scrape_reviews_page(self, page_number: int) -> List[Dict]:
+        """Scrape a single page of reviews using Selenium"""
+        url = (
+            self.base_url if page_number == 1 else f"{self.base_url}?page={page_number}"
+        )
+
+        print(f"Fetching URL: {url}")
+        content = self.get_page_content(url)
+        if not content:
+            return []
+
+        soup = BeautifulSoup(content, "html.parser")
+        articles_list = soup.find("ul", {"data-gui": "article-list-container"})
+        if not articles_list:
+            articles_list = soup.find("ul", class_="at__sc-1n64n0d-1")
+            if not articles_list:
+                return []
+
+        articles = []
+        articles_found = False
+
+        for li in articles_list.find_all("li"):
+            articles_found = True
+            article_preview = self.parse_article_preview(li)
+            if article_preview and article_preview["url"] not in self.processed_urls:
+                article_content = self.get_article_content(article_preview["url"])
+                if article_content:
+                    self.processed_urls.add(article_preview["url"])
+                    articles.append(article_content)
+                    print(f"Processed article: {article_content['title']}")
+
+        if not articles_found:
+            return []
+
+        print(f"Found {len(articles)} new articles on page {page_number}")
+        return articles
