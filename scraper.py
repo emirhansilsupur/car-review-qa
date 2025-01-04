@@ -84,3 +84,16 @@ class AutoTraderScraper:
             "section_title": header_text,
             "content": content_text,
         }
+
+    def parse_longterm_section(self, section: BeautifulSoup) -> Dict:
+        """Parse long-term review section content."""
+
+        section_divs = section.find_all("div", class_="at__sc-21l6gh-3")
+        if len(section_divs) >= 2:
+            title = section_divs[0].get_text(strip=True)
+            content = " ".join(div.get_text(strip=True) for div in section_divs[1:])
+            return {"section_title": title, "content": content}
+        elif len(section_divs) == 1:
+            content = section_divs[0].get_text(strip=True)
+            return {"content": content}
+        return {}
