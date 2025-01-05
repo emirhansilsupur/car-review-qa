@@ -101,6 +101,28 @@ class AutoTraderScraper:
             return {"content": content}
         return {}
 
+    def parse_article_preview(self, li_element: BeautifulSoup) -> Dict:
+        """Parse individual article preview from list item."""
+
+        link = li_element.find("a")
+        href = link["href"] if link else None
+        if not href or self.url_pattern not in href:
+            return {}
+
+        full_url = f"https://www.autotrader.co.uk{href}"
+        title = li_element.find("h2", class_="liAhgq")
+        title_text = title.text.strip() if title else None
+
+        description = li_element.find("p", class_="iEtmox")
+        description_text = description.text.strip() if description else None
+
+        return {
+            "title": title_text,
+            "description": description_text,
+            "url": full_url,
+            "category": self.category_name,
+        }
+
     def get_article_content(self, url: str) -> Dict:
         """Fetch and parse article content."""
 
