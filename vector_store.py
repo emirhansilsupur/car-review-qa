@@ -10,7 +10,7 @@ class VectorStoreManager:
     def __init__(
         self,
         index_name="car-articles",
-        persist_directory="./vector_store",
+        persist_directory="./vector_db",
         dense_weight=0.7,
         sparse_weight=0.3,
     ):
