@@ -5,7 +5,7 @@ from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from tqdm import tqdm
 from langchain_community.document_loaders import JSONLoader
-from vector_store import VectorStoreManager  # type: ignore
+from vector_store import VectorStoreManager
 
 
 class DocumentProcessor:
@@ -26,13 +26,18 @@ class DocumentProcessor:
         category = raw_json.get("category", "").lower()
         car_details = raw_json.get("car_details", {})
 
+        model = car_details.get("model", "").lower()
+        if "-" in model:
+
+            model = "-".join(model.split("-")[:2])
+
         metadata = {
             "title": raw_json.get("title", ""),
             "category": category,
-            "car": car_details.get("make", "").lower(),
-            "model": car_details.get("model", "").lower(),
+            "make": car_details.get("make", "").lower(),
+            "model": model,
             "body_type": str(car_details.get("body_type", "")).lower(),
-            "model_year": car_details.get("year", ""),
+            "year": car_details.get("year", ""),
         }
 
         return metadata
