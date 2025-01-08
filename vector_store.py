@@ -32,32 +32,50 @@ class VectorStoreManager:
         if os.path.exists(
             os.path.join(self.persist_directory, f"{self.index_name}.faiss")
         ):
-            return FAISS.load_local(
-                self.persist_directory,
-                self.embeddings,
-                index_name=self.index_name,
-                allow_dangerous_deserialization=True,
-            )
+            try:
+                store = FAISS.load_local(
+                    self.persist_directory,
+                    self.embeddings,
+                    index_name=self.index_name,
+                    allow_dangerous_deserialization=True,
+                )
+                print(
+                    f"Vector store loaded successfully with {len(store.docstore._dict)} documents"
+                )
+                return store
+            except Exception as e:
+                print(f"Error loading vector store: {e}")
+                return None
         return None
 
     def add_documents(self, documents: List[Document]):
         """Add documents to both dense and sparse retrievers."""
         if self.vector_store is None:
+            print("Creating new vector store...")
             self.vector_store = FAISS.from_documents(documents, self.embeddings)
+            print(f"Created vector store with {len(documents)} documents")
         else:
+            print(f"Adding {len(documents)} documents to existing vector store")
             self.vector_store.add_documents(documents)
 
         # BM25Retriever is used for sparse retrieval
         self.sparse_retriever = BM25Retriever.from_documents(documents)
 
         # Persist the dense index
+        print("Saving vector store...")
         self.vector_store.save_local(self.persist_directory, index_name=self.index_name)
+        print("Vector store saved successfully")
 
     def similarity_search(
         self, query: str, k: int = 5, filter: Dict = None
     ) -> List[Document]:
         """Hybrid search combining dense and sparse retrievers."""
-        dense_docs = self.vector_store.similarity_search(query, k=k * 2, filter=filter)
+        print(f"Searching with k={k} and filters={filter}")
+
+        if filter:
+            print("Applying filters:", filter)
+
+        dense_docs = self.vector_store.similarity_search(query, k=k, filter=filter)
         dense_scores = [1 / (i + 1) for i in range(len(dense_docs))]
 
         if self.sparse_retriever:
