@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import json
 from typing import List, Dict, Union, Tuple
 from langchain_core.documents import Document
@@ -22,23 +23,34 @@ class DocumentProcessor:
         )
 
     def create_metadata(self, file_path: str, raw_json: Dict) -> Dict:
-        """Create metadata from JSON content."""
-        category = raw_json.get("category", "").lower()
+        """
+        Create and sanitize metadata from JSON content based on article type.
+        Only includes car_details for expert reviews and long-term reviews.
+        """
+
+        category = (
+            raw_json.get("category", "").lower().replace(" ", "_").replace("-", "_")
+        )
         car_details = raw_json.get("car_details", {})
 
-        model = car_details.get("model", "").lower()
-        if "-" in model:
+        # Base metadata that all articles have
 
-            model = "-".join(model.split("-")[:2])
-
-        metadata = {
-            "title": raw_json.get("title", ""),
-            "category": category,
-            "make": car_details.get("make", "").lower(),
-            "model": model,
-            "body_type": str(car_details.get("body_type", "")).lower(),
-            "year": car_details.get("year", ""),
-        }
+        if category == "expert_review":
+            metadata = {
+                "title": raw_json.get("title", ""),
+                "category": category,
+                "car": car_details.get("make", ""),
+                "model": car_details.get("model", ""),
+                "body_type": car_details.get("body_type", ""),
+                "model_year": car_details.get("year", ""),
+            }
+        else:
+            metadata = {
+                "title": raw_json.get("title", ""),
+                "category": category,
+                "car": car_details.get("make", ""),
+                "model": car_details.get("model", ""),
+            }
 
         return metadata
 
@@ -82,10 +94,11 @@ class DocumentProcessor:
             print(f"Error processing {file_path}: {str(e)}")
             raise
 
-    def process_directory(
-        self, directory_path=r"articles\raw"
-    ) -> Dict[str, List[Document]]:
+    def process_directory(self, directory_path=None) -> Dict[str, List[Document]]:
         """Process all JSON files in a directory."""
+        if directory_path is None:
+            directory_path = os.path.join("articles", "raw")
+
         path = Path(directory_path)
         json_files = list(path.glob("**/*.json"))
         print(len(json_files))
