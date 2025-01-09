@@ -4,8 +4,8 @@ from typing import Dict, Any
 from pathlib import Path
 import json
 from collections import defaultdict
-from vector_store import VectorStoreManager
-from qa_model import CarReviewQA
+from src.vector_store import VectorStoreManager
+from src.qa_model import CarReviewQA
 
 VECTOR_STORE_SETTINGS = {
     "index_name": "car-articles",
