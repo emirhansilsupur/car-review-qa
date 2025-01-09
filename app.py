@@ -130,7 +130,7 @@ def main():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    reviews_dir = r"articles\raw\expert_review"
+    reviews_dir = os.path.join("articles", "raw", "expert_review")
 
     if not os.path.exists(reviews_dir):
         st.error(f"Reviews directory not found at {reviews_dir}!")
@@ -214,14 +214,17 @@ def main():
     year_options = ["All"] + sorted(available_years, reverse=True)
     selected_year = st.sidebar.selectbox("Model Year", year_options, key="year")
 
+    default_make = "BMW"
+    default_model = "M5"
+
     # Example questions section
     st.sidebar.markdown("### Example Questions")
     example_questions = [
-        f"What is the reliability of the {selected_make} {selected_model}?",
-        f"How comfortable is the {selected_make} {selected_model}?",
-        f"What are the features of the {selected_make} {selected_model}?",
-        f"What are the running costs for the {selected_make} {selected_model}?",
-        f"How safe is the {selected_make} {selected_model}?",
+        f"What is the reliability of the {default_make if selected_make == 'All' else selected_make} {default_model if selected_model == 'All' else selected_model}?",
+        f"How comfortable is the {default_make if selected_make == 'All' else selected_make} {default_model if selected_model == 'All' else selected_model}?",
+        f"What are the features of the {default_make if selected_make == 'All' else selected_make} {default_model if selected_model == 'All' else selected_model}?",
+        f"What are the running costs for the {default_make if selected_make == 'All' else selected_make} {default_model if selected_model == 'All' else selected_model}?",
+        f"How safe is the {default_make if selected_make == 'All' else selected_make} {default_model if selected_model == 'All' else selected_model}?",
     ]
 
     # Buttons for example questions
