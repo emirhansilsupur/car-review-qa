@@ -174,9 +174,8 @@ class CarReviewDataProcessor:
         model = "-".join(model_parts).lower() if model_parts else None
 
         # For long term reviews directory, return simplified structure
-        if (
-            base_directory
-            and base_directory.strip("/") == "articles/raw/long_term_reviews"
+        if base_directory and os.path.normpath(base_directory) == os.path.normpath(
+            "articles/raw/long_term_reviews"
         ):
             return {"make": make, "model": model}
 
@@ -235,14 +234,14 @@ def main():
     processor = CarReviewDataProcessor()
 
     # Process expert reviews
-    expert_dir = "articles/raw/expert_review"
+    expert_dir = os.path.join("articles", "raw", "expert_review")
     if os.path.exists(expert_dir):
         print("\nProcessing expert reviews...")
         processed_expert = processor.process_directory(expert_dir)
         print(f"Processed {len(processed_expert)} expert review files")
 
     # Process long-term reviews
-    longterm_dir = "articles/raw/long_term_reviews"
+    longterm_dir = os.path.join("articles", "raw", "long_term_reviews")
     if os.path.exists(longterm_dir):
         print("\nProcessing long-term reviews...")
         processed_longterm = processor.process_directory(longterm_dir)

@@ -1,13 +1,14 @@
 import os
 from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_ollama.llms import OllamaLLM
+
+# from langchain_ollama.llms import OllamaLLM
 from langchain_core.output_parsers import StrOutputParser
 from typing import List, Dict
 from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI
 import warnings
-from vector_store import VectorStoreManager
+from src.vector_store import VectorStoreManager
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.classes")
 
