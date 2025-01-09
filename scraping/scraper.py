@@ -251,7 +251,7 @@ class AutoTraderScraper:
 
     def save_to_json(self, articles: List[Dict]):
         """Save scraped data to JSON files in organized directory structure."""
-        base_dir = "articles/raw"
+        base_dir = os.path.join("articles", "raw")
         os.makedirs(os.path.join(base_dir, self.save_directory), exist_ok=True)
 
         for article in articles:
