@@ -39,7 +39,6 @@ class AutoTraderScraper:
 
         # Setup Selenium
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument(f"user-agent={self.ua.random}")
         chrome_options.add_argument("--no-sandbox")
@@ -126,10 +125,9 @@ class AutoTraderScraper:
     def get_article_content(self, url: str) -> Dict:
         """Fetch and parse article content."""
 
-        headers = {"User-Agent": self.ua.random}
-        response = requests.get(url, headers=headers, timeout=30)
-        response.raise_for_status()
-        content = response.text
+        self.driver.get(url)
+        time.sleep(5)
+        content = self.driver.page_source
 
         soup = BeautifulSoup(content, "html.parser")
         article = soup.find("article")
