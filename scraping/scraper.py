@@ -267,13 +267,47 @@ class AutoTraderScraper:
                 print(f"Error saving article: {e}")
 
 
+def get_user_input():
+    """Ask the user how many pages to scrape."""
+    while True:
+        try:
+            max_pages = (
+                input(
+                    "How many pages to scrape? (Enter 'all' for all pages or 'exit' to quit): "
+                )
+                .strip()
+                .lower()
+            )
+            if max_pages == "exit":
+                print("Exiting...")
+                return None
+            elif max_pages == "all":
+                max_pages = None
+            else:
+                max_pages = int(max_pages)
+                if max_pages < 1:
+                    print("Please enter a number greater than 0.")
+                    continue
+
+            return max_pages
+
+        except ValueError:
+            print("Invalid input. Please enter a number or 'all'.")
+            continue
+
+
 if __name__ == "__main__":
-    # For expert reviews
+    max_pages = get_user_input()
+
+    if max_pages is None:
+        exit()
+
+    print("\nScraping expert reviews...")
     expert_scraper = AutoTraderScraper(category="expert")
-    expert_reviews = expert_scraper.scrape_all_reviews()
+    expert_reviews = expert_scraper.scrape_all_reviews(max_pages=max_pages)
     expert_scraper.save_to_json(expert_reviews)
 
-    # For long-term reviews
+    print("\nScraping long-term reviews...")
     longterm_scraper = AutoTraderScraper(category="longterm")
-    longterm_reviews = longterm_scraper.scrape_all_reviews()
+    longterm_reviews = longterm_scraper.scrape_all_reviews(max_pages=max_pages)
     longterm_scraper.save_to_json(longterm_reviews)
