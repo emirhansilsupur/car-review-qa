@@ -1,13 +1,13 @@
-version: '3.8'
-
 services:
   car-qa:
     build: .
+    image: emirhnslspr/car-review-qa:v1.0.0
     ports:
       - "8501:8501"
     volumes:
-      - .:/app
+      - ./articles:/app/articles
       - ./vector_db:/app/vector_db
+      - ./src:/app/src
     environment:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
     healthcheck:
