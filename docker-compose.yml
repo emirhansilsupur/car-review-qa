@@ -9,6 +9,7 @@ services:
       - ./vector_db:/app/vector_db
       - ./src:/app/src
     environment:
+      - PYTHONPATH=/app/src
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8501/_stcore/health"]
