@@ -5,7 +5,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Set PYTHONPATH to include /app/src
-ENV PYTHONPATH="${PYTHONPATH}:/app/src"
+ENV PYTHONPATH=/app/src
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \

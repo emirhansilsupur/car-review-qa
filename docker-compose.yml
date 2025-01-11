@@ -10,8 +10,6 @@ services:
       - ./src:/app/src
     env_file:
       - .env 
-    environment:
-      - PYTHONPATH=/app/src
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8501/_stcore/health"]
       interval: 30s
