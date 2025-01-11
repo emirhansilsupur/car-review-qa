@@ -8,7 +8,7 @@ from typing import List, Dict
 from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI
 import warnings
-from src.vector_store import VectorStoreManager
+from vector_store import VectorStoreManager
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.classes")
 

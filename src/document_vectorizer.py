@@ -6,7 +6,7 @@ from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from tqdm import tqdm
 from langchain_community.document_loaders import JSONLoader
-from src.vector_store import VectorStoreManager
+from vector_store import VectorStoreManager
 
 
 class DocumentProcessor:
